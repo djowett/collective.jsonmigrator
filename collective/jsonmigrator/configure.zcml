@@ -78,6 +78,21 @@
         component=".catalogsource.CatalogSourceSection"
         name="collective.jsonmigrator.catalogsource"
         />
+    
+    <utility
+        component=".blueprint.SkipItems"
+        name="collective.jsonmigrator.skipitems"
+        />
+  
+    <utility
+        component=".blueprint.PartialCommit"
+        name="collective.jsonmigrator.partialcommit"
+        />
+  
+    <utility
+        component=".blueprint.Statistics"
+        name="collective.jsonmigrator.statistics"
+        />
 
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
