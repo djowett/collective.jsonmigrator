@@ -96,13 +96,16 @@ class Urllibrpc(object):
     def __getattr__(self, item):
         def callable():
             scheme,netloc,path,params,query,fragment = urlparse.urlparse(self.url)
-            if '@' not in netloc:
-                netloc = '%s:%s@%s'%(self.username, self.password, netloc)
+            #if '@' not in netloc:
+            #    netloc = '%s:%s@%s'%(self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
             url = urlparse.urlunparse( (scheme,netloc,path,params,query,fragment) )
-            f = urllib.urlopen(url)
+            try:
+                f = urllib2.urlopen(url)
+            except IOError, e:
+                raise UrllibrpcException(e, url)
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -122,6 +125,7 @@ class RemoteSource(object):
             ('remote-path', '/Plone'),
             ('remote-crawl-depth', -1),
             ('remote-skip-path', ''),
+#            ('remote-skip-types', 'Plone Site'),
             ]
 
     classProvides(ISectionBlueprint)
@@ -138,9 +142,22 @@ class RemoteSource(object):
             self.remote_crawl_depth = int(self.remote_crawl_depth)
         if type(self.remote_skip_path) in [str, unicode]:
             self.remote_skip_path = self.remote_skip_path.split()
+        self.remote_skip_types = ('DTMLMethod','Script (Python)')
         if self.remote_path[-1] == '/':
             self.remote_path = self.remote_path[:-1]
 
+        remote_username = self.get_option('remote-username', 'admin')
+        remote_password = self.get_option('remote-password', 'admin')
+        
+        # Install a basic auth handler
+        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler.add_password(realm='Zope',
+                                  uri=self.remote_url,
+                                  user=remote_username,
+                                  passwd=remote_password)
+        opener = urllib2.build_opener(auth_handler)
+        urllib2.install_opener(opener)
+        
         # Load cached data from the given file
         self.cache = resolvePackageReferenceOrFile(options.get('cache', ''))
         if self.cache and os.path.exists(self.cache):
@@ -163,6 +180,9 @@ class RemoteSource(object):
         if path.startswith('/'):
             path = path[1:]
         url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+#        logger.info("remote_url: %s, remote_path: %s, path: %s, url %s" %
+#                        (self.remote_url,self.remote_path, path, url))
+
         #remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
@@ -176,14 +196,14 @@ class RemoteSource(object):
         except UrllibrpcException, e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
-            return None, []
+            return None, 'ERROR: in get_item'
 
         try:
             subitems = remote.get_children()
         except UrllibrpcException, e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
-            return item, []
+            return item, 'ERROR: in get_children'
 
         return item, subitems
         
@@ -202,8 +222,12 @@ class RemoteSource(object):
                 logger.error("Could not get item '%s' from remote. Got %s." % (path, item))
                 return
 
-            item = simplejson.loads(item)
-            logger.info(':: Crawling %s' % item['_path'])
+            try:
+                item = simplejson.loads(item)
+            except simplejson.JSONDecodeError:
+                logger.error("Could not decode item from %s." % path)
+                return
+            logger.info(':: Crawling %s %s' % (item['_type'], item['_path']))
 
             # item['_path'] is relative to domain root. we need relative to plone root
             remote_url = self.remote_url
@@ -213,6 +237,9 @@ class RemoteSource(object):
                 item['_path'] = item['_path'][1:]
 
             if item['_type'] == "Plone Site":
+                pass
+            elif getattr(item, '_classpath', None) in self.remote_skip_types:
+                logger.info(':: Skipping type' + item['_classpath'] + ' -> ' + subitem_path)
                 pass
             else:
                 yield item
@@ -225,7 +252,7 @@ class RemoteSource(object):
                 subitem_path = path + '/' + subitem_id
 
                 if subitem_path[len(self.remote_path):] in self.remote_skip_path:
-                    logger.info(':: Skipping -> ' + subitem_path)
+                    logger.info(':: Skipping (by path) -> ' + subitem_path)
                     continue
 
                 for subitem in self.get_items(subitem_path, depth+1):
