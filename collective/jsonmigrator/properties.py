@@ -57,7 +57,7 @@ class Properties(object):
 
             if not IBaseObject.providedBy(obj) or \
                not getattr(aq_base(obj), '_delProperty', False):
-                continue
+                yield item; continue
 
             for pid,pvalue,ptype in item[propertieskey]:
                 if getattr(aq_base(obj), pid, None) is not None:

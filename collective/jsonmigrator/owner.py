@@ -56,7 +56,7 @@ class Owner(object):
                 yield item; continue
 
             if not IBaseObject.providedBy(obj):
-                continue
+                yield item; continue
 
             if item[ownerkey][0] and item[ownerkey][1]:
                 try:
