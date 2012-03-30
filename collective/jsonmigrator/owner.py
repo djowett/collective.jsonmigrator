@@ -9,7 +9,10 @@ from collective.transmogrifier.utils import defaultKeys
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
+# Dexterity Schema
+from plone.directives import form
 
+import logging
 
 class Owner(object):
     """ """
@@ -55,13 +58,14 @@ class Owner(object):
             if obj is None:             # path doesn't exist
                 yield item; continue
 
-            if not IBaseObject.providedBy(obj):
+            if not (IBaseObject.providedBy(obj) or form.Schema.providedBy(obj)):
                 yield item; continue
 
             if item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj.changeOwnership(
                             self.memtool.getMemberById(item[ownerkey][1]))
+                    logging.getLogger("jsonmigrator.owner").info("Changed ownership to: " + item[ownerkey][1])
                 except Exception, e:
                     raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' % \
                             (str(e), item[pathkey]))
@@ -78,5 +82,16 @@ class Owner(object):
                 except Exception, e:
                     raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' % \
                             (str(e), item[pathkey]))
-
+                    
+            # Add the new_owner as primary author
+            if 'creators' in item:
+                creators = item['creators']
+                new_owner = item[ownerkey][1]
+                    
+                if new_owner in creators:
+                    # Don't add same creator twice, but move to front
+                    del creators[creators.index(new_owner)]
+                                                                            
+                obj.setCreators([new_owner] + creators)
+    
             yield item
