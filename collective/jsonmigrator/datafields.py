@@ -58,7 +58,7 @@ class DataFields(object):
                         continue
 
                     fieldname = key[len(self.datafield_prefix):]
-                    #logging.getLogger("jsonmigrator.datafields").info("Decoding field %s" % (fieldname))
+                    logging.getLogger("jsonmigrator.datafields").info("Decoding field %s" % (fieldname))
                     field = obj.getField(fieldname)
                     if field is None:
                         continue
