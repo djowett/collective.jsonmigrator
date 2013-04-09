@@ -1,0 +1,21 @@
+Set Marker Interfaces on an object
+====================================
+
+Sometimes it is necessary to set a marker interface based on a condition.
+I encountered this whilst importing Products.Carousel folders.
+The pipeline below demonstrates what was done for that usecase, but it can be
+used in others too.
+
+    [transmogrifier]
+    pipeline =
+        source
+        constructor
+        carousel-marker
+
+    [constructor]
+    blueprint = collective.transmogrifier.sections.constructor
+
+    [carousel-marker]
+    blueprint = collective.jsonmigrator.marker
+    interface = Products.Carousel.interfaces.ICarouselFolder
+    condition = python:item['_type']=='Folder' and item['_path'].endswith('carousel')
