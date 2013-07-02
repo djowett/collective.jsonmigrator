@@ -3,7 +3,11 @@ from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import defaultMatcher
-from zope.app.container.contained import notifyContainerModified
+try:
+    # New location in Plone 4.3
+    from zope.container.contained import notifyContainerModified
+except:
+    from zope.app.container.contained import notifyContainerModified
 
 
 class OrderSection(object):
