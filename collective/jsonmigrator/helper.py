@@ -64,7 +64,7 @@ class IJSONMigratorRun(Interface):
 
     remote_skip_path = List(
             title=_(u"Paths to skip"),
-            description=_(u"Which paths to skip when crawling."),
+            description=_(u"Which paths to skip when crawling (relative to 'Start path')."),
             value_type=TextLine(),
             required=False,
             )
@@ -130,7 +130,16 @@ class JSONMigratorRun(form.Form):
             return False
 
         logger.info("Start importing profile: " + data['config'])
-        Transmogrifier(self.context)(data['config'])
+        rs_options = dict()
+        for fieldname, value in data.iteritems():
+            optname = fieldname.replace('_', '-')
+            if type(value) == list:
+                rs_options[optname] = '\n'.join(value)
+            else:
+                rs_options[optname] = str(value)
+            #logger.info( "%s(%s)::%s" % (fieldname, optname, rs_options[optname]))
+            
+        Transmogrifier(self.context)(data['config'], remotesource=rs_options)
         logger.info("Stop importing profile: " + data['config'])
 
 
