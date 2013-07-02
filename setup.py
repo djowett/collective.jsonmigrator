@@ -27,6 +27,7 @@ setup(
         'simplejson',
         'collective.transmogrifier',
         'plone.app.transmogrifier',
+        'plone.app.dexterity [grok]',
         ],
     entry_points="""
     [z3c.autoinclude.plugin]
