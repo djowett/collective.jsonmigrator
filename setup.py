@@ -27,6 +27,7 @@ setup(
         'simplejson',
         'collective.transmogrifier',
         'plone.app.transmogrifier',
+        #'quintagroup.transmogrifier',
         'plone.app.dexterity [grok]',
         ],
     entry_points="""
