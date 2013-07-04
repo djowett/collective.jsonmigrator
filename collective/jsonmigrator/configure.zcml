@@ -106,6 +106,12 @@
         />
 
     <transmogrifier:registerConfig
+        name="collective.jsonmigrator.plone3"
+        title="Migration configuration for Plone 3 content types"
+        configuration="config_plone3.cfg"
+        />
+
+    <transmogrifier:registerConfig
         name="collective.jsonmigrator.catalog"
         title="Migration configuration for querying the catalog of a Plone site"
         configuration="config_catalog.cfg"
