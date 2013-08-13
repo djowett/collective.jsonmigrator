@@ -110,7 +110,7 @@ class Statistics(object):
 
     def __init__(self, transmogrifier, name, options, previous):
         self.stats = {'START_TIME':     int(time.time()),
-                      'TIME_LAST_STEP': 0,
+                      'TIME_LAST_STEP': int(time.time()),
                       'STEP':           options.get('log-step', 25),
                       'OBJ_COUNT':      0,
                       'EXISTED':        0,
@@ -153,13 +153,13 @@ class Statistics(object):
 
                 now = int(time.time())
                 stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
-                stat += 'TOTAL TIME: %d; ' % (now - self.stats['START_TIME'])
-                stat += 'STEP TIME: %d; ' % (now - self.stats['TIME_LAST_STEP'])
+                stat += 'TOTAL TIME: %ds; ' % (now - self.stats['START_TIME'])
+                stat += 'STEP TIME: %ds; ' % (now - self.stats['TIME_LAST_STEP'])
                 self.stats['TIME_LAST_STEP'] = now
-                stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
-                                               self.stats['EXISTED'],
-                                               self.stats['ADDED'],
-                                               self.stats['NOT-ADDED'])
+                #stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
+                                               #self.stats['EXISTED'],
+                                               #self.stats['ADDED'],
+                                               #self.stats['NOT-ADDED'])
                 logging.warning(stat)
 
 
