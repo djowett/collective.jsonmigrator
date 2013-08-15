@@ -112,6 +112,12 @@
         />
 
     <transmogrifier:registerConfig
+        name="collective.jsonmigrator.fix_path_criterion"
+        title="Fix Path Criteria in imported Topics"
+        configuration="config_fix_path_criterion.cfg"
+        />
+
+    <transmogrifier:registerConfig
         name="collective.jsonmigrator.catalog"
         title="Migration configuration for querying the catalog of a Plone site"
         configuration="config_catalog.cfg"
