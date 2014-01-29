@@ -9,7 +9,6 @@ from collective.transmogrifier.utils import defaultKeys
 
 from Acquisition import aq_base
 from ZODB.POSException import ConflictError
-from Products.Archetypes.interfaces import IBaseObject
 
 
 class Properties(object):
@@ -55,8 +54,7 @@ class Properties(object):
                 # path doesn't exist
                 yield item; continue
 
-            if not IBaseObject.providedBy(obj) or \
-               not getattr(aq_base(obj), '_delProperty', False):
+            if not getattr(aq_base(obj), '_setProperty', False):
                 yield item; continue
 
             for pid,pvalue,ptype in item[propertieskey]:
@@ -72,7 +70,6 @@ class Properties(object):
                 except ConflictError:
                     raise
                 except Exception, e:
-                    import pdb; pdb.set_trace()
                     raise Exception('Failed to set property "%s" type "%s"'
                             ' to "%s" at object %s. ERROR: %s' % \
                             (pid, ptype, pvalue, str(obj), str(e)))
