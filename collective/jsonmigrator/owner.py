@@ -10,7 +10,12 @@ from collective.transmogrifier.utils import defaultKeys
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
 # Dexterity Schema
-from plone.directives import form
+DEXTERITY_INSTALLED = 0
+try:
+    from plone.directives import form
+    DEXTERITY_INSTALLED = 1
+except:
+    pass
 
 import logging
 
@@ -58,7 +63,7 @@ class Owner(object):
             if obj is None:             # path doesn't exist
                 yield item; continue
 
-            if not (IBaseObject.providedBy(obj) or form.Schema.providedBy(obj)):
+            if not (IBaseObject.providedBy(obj) or (DEXTERITY_INSTALLED and form.Schema.providedBy(obj))):
                 yield item; continue
 
             if item[ownerkey][0] and item[ownerkey][1]:
