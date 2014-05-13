@@ -57,9 +57,9 @@ class Permissions(object):
                         obj.manage_permission(perm,
                             roles=perm_dict['roles'],
                             acquire=perm_dict['acquire'])
-                    except ValueError:
+                    except ValueError, ex:
                         #raise Exception('Error setting the perm "%s"' % perm)
-                        logger.error('Error setting the perm "%s" on %s' % (perm, item[pathkey]))
+                        logger.error('Error setting the perm "%s" on %s: %s' % (perm, item[pathkey], ex))
 
 
             yield item
