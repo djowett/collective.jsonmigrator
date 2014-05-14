@@ -35,7 +35,7 @@ setup(
         'simplejson',
         'collective.transmogrifier',
         'plone.app.transmogrifier',
-        'transmogrify.print',
+        'transmogrify.print>0.5',
         'zope.app.container',
     ],
     entry_points="""
