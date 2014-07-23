@@ -12,6 +12,7 @@ Expected data in pipeline:
 
     * **_path**: path to object on which we want to change properties.
     * **_owner**: properties to be applied to object resolved above.
+    * **creators**: will be applied to object resolved above, prefixed by _owner.
 
 Example
 -------
@@ -32,10 +33,7 @@ Data in pipeline::
 
     {
         "_path": "/Plone/index_html", 
-        "_owner": [
-            1, 
-            "admin"
-        ],
+        "_owner": "admin",
     }
 
 
